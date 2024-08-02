@@ -27,7 +27,7 @@ This script performs a bootstrapping analysis of pupil dilation synchrony. It ra
 <br>
 
 - **3.1_MainTTest.R**<br>
-This script performs a t-test comparison of pupil dilation synchrony between children and adults. To address the imbalance in group sizes, it randomly subsets the children's group to match the adult group size, repeating this process 1000 times. Synchrony data is binned into 10-second intervals, and a t-test is computed for each iteration. The resulting p-value distribution is then compared against the standard 0.05 threshold.
+This script performs a t-test comparison of pupil dilation synchrony between children and adults. To address the imbalance in group sizes, it randomly subsets the children's group to match the adult group size, repeating this process 1000 times. Synchrony data is binned into 10-second intervals, and a t-test is computed for each iteration. The resulting p-value distribution is then compared against the standard 0.05 threshold. The script employs parallel computing using the `parallel` library and `parlapply()` function to enhance computational efficiency.
 <br>
 
 - **3.2_RollingTtest.R**<br>
