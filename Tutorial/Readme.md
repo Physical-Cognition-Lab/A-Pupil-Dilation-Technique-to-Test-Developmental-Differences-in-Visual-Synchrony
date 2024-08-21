@@ -1,5 +1,18 @@
 # A Pupil Dilation Technique to Test Developmental Differences in Visual Synchrony
+This repository contains a tutorial on how to extract and compare pupil synchrony between populations, following the methodology described in the article A Pupil Dilation Technique to Test Developmental Differences in Visual Synchrony.
+The tutorial is written in R and uses the Quarto (.qmd) file format. The Quarto file has been exported to various output formats to increase the accessibility of the tutorial. This README file provides an overview of the tutorial contents and the available file formats.
 
+## Available File Formats
+The tutorial is available in the following file formats:
+
+- `.qmd`: The original R Markdown-based Quarto file that contains the complete tutorial with code, text, and output.
+- `.pdf`: A PDF version of the tutorial, which can be printed or easily shared with collaborators.
+- `.md`:  Markdown version of the tutorial, which can be viewed on GitHub or other Markdown-compatible platforms. This README file is the Markdown version of the tutorial.
+- `.ipynb`: A Jupyter Notebook version of the tutorial, which can be interactive and easily shared with collaborators.
+
+Additionally, this repository contains a file named `Simulated data.csv`, which is a comma-delimited table containing simulated data used in this tutorial. Please note that the results from this simulated data should not be interpreted as representative of actual physiological responses.
+
+# Tutorial content:
 
 - [Introduction](#introduction)
 - [Data Import and Visualization](#data-import-and-visualization)
