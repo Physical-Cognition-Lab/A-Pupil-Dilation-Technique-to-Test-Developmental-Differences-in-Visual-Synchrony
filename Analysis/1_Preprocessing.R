@@ -36,6 +36,122 @@ stimulus_duration_df = data.frame(
 )
 
 
+# Basic import and data fix -----------------------------------------------
+
+CSV = list()
+files = list.files(path = 'C:\\Users\\tomma\\OneDrive - Birkbeck, University of London\\PupilDilationSync_2023\\Data\\Raw',  # Identify all CSV files
+                   pattern = "*.csv", full.names = TRUE)
+
+for (x in 1:length(files)) {
+  print(x)
+  
+  # Read data
+  df = read.csv(files[x], sep =',',row.names=NULL)
+  
+  # Extract only videos of interest
+  df = df[str_detect(df$Stimulus, word_list) |
+            str_detect(df$Trial, word_list),]
+  
+  # Fixing column number problems linked to names of videos having commas
+  if(ncol(df) ==28){
+    colnames = names(df[,2:ncol(df)])
+    df = df[ , -ncol(df)]
+    names(df) = colnames
+  }
+  CSV[[x]] = df
+} 
+
+# Combine all dataframes
+db= bind_rows(CSV)
+
+
+# Basic fix data -------------------------------------------------------------
+
+db = db%>%
+  rename(Time = names(db)[1],
+         Classification = Category.Right,
+         Pupil = Pupil.Diameter.Right..mm.,
+         GazeX = Point.of.Regard.Right.X..px.,
+         GazeY = Point.of.Regard.Right.Y..px.,
+         Quality = Tracking.Ratio....) %>%
+  # Make Na when quality tracking is - or 0
+  mutate(Pupil = if_else(Quality == '-' | Quality == '0.000', NA, Pupil),
+         GazeX = if_else(Quality == '-' | Quality == '0.000', NA, GazeX),
+         GazeY = if_else(Quality == '-' | Quality == '0.000', NA, GazeY),
+         
+         # Fix the rest of data
+         Subject = factor(as.numeric(str_extract(Participant, "\\d+"))),
+         Stimulus =  str_extract(Stimulus, word_list),
+         Time  = as.numeric(Time, na.rm = FALSE),
+         Pupil = as.numeric(Pupil, na.rm = FALSE),
+         GazeX = as.numeric(GazeX, na.rm = FALSE),
+         GazeY = as.numeric(GazeY, na.rm = FALSE)) %>%
+  filter(Classification != 'Separator' & Classification != 'Information' & Classification != 'Keyboard' ) %>% # remove useless row
+  select(Time, Stimulus, Subject,Participant, Classification, GazeX, GazeY, Pupil, Quality)
+
+# Reject subject 65 from file Left3_ESC_Perception_Raw.csv because there is
+# weird thing about the subject. It has 2 Soar1 and has tow names 65_04_1 and 65_04_02
+db = db %>% filter(Subject != 65)
+
+### Rename videos and Group
+db = db%>%
+  group_by(Subject) %>%
+  mutate(Column = str_replace_all(Stimulus, ".avi", "")) %>%
+  mutate(Video = case_when(
+    grepl("Soar", Stimulus) ~ 1,
+    grepl("Dustin", Stimulus) ~ 2,
+    grepl("Lifted", Stimulus) ~ 3,
+    grepl("Boundin", Stimulus) ~ 4),
+    
+    Group = ifelse(grepl("_AD", Participant), 'Adults', 'Children')) %>%
+  ungroup()
+
+
+# As 0 seems in the gaze coordinates seems to be used when there is no data (blink)
+# we set data to NA for every sample were both GazeX and GazeY are 0 and where
+# the data report a blink
+db = db %>%
+  mutate(
+    # Exclude value both around 0
+    Pupil = if_else(  (GazeX >= -4 & GazeX <= 4) & (GazeY >= -4 & GazeY <= 4) | Classification == 'Blink'  , NA, Pupil ),
+    GazeX = if_else(  (GazeX >= -4 & GazeX <= 4) & (GazeY >= -4 & GazeY <= 4)| Classification == 'Blink'  , NA, GazeX ),
+    GazeY = if_else(  (GazeX >= -4 & GazeX <= 4) & (GazeY >= -4 & GazeY <= 4) | Classification == 'Blink'  , NA, GazeY ),
+    
+    # Exclude extreme values
+    Pupil = if_else(  Pupil==0 | Pupil > 6 , NA, Pupil ),
+    GazeX = if_else(  GazeX==0 | GazeX < 0 , NA, GazeX ),
+    GazeY = if_else(  GazeY==0 | GazeY < 0 , NA, GazeY ))
+
+
+### Reset time
+db = db %>%
+  
+  # Set to 0 at the beginning of trial
+  group_by(Group, Subject, Video, Stimulus) %>%
+  arrange(Time) %>%
+  mutate(Seconds  =  (Time - first(Time))/1000) %>%
+  ungroup()
+
+
+### Reject subject and videos
+# Cut data based on real video duration
+# Reject videos with less than 75% data
+# Reject subject with less than 75% of videos
+db = db %>%
+  
+  left_join(stimulus_duration_df, by = "Stimulus")%>%
+  filter(Seconds <= MaxDuration)%>%
+  
+  group_by(Group, Subject, Video, Stimulus) %>%
+  filter(max(Seconds)*100/first(MaxDuration) > 75)%>%
+  ungroup()%>%
+  
+  group_by(Group, Subject) %>%
+  filter(n_distinct(Stimulus) > 9)%>%
+  ungroup()%>%
+  select(Group, Seconds,MaxDuration, Stimulus, Video, Subject, GazeX, GazeY, Pupil)
+
+
 
 # Data Pre-processing -----------------------------------------------------
 
