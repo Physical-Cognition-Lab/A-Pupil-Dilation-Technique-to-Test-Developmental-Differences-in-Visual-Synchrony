@@ -1,7 +1,8 @@
 # A Pupil Dilation Technique to Test Developmental Differences in Visual Synchrony
 
 Welcome to the repository for the paper *A Pupil Dilation Technique to Test Developmental Differences in Visual Synchrony*.
-##Repository Structure
+
+## Repository Structure
 This repository is organized into two main subfolders:
 1. Analysis
 
