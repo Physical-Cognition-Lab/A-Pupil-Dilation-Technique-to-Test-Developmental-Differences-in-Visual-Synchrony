@@ -9,11 +9,11 @@ library(zoo)
 Hz = 20
 window_sizeP = Hz * 2  # Window size for calculating rolling correlation
 
-# Set working directory
-setwd("C:\\Users\\tomma\\Desktop\\Share")
+# Set the working directory to where your data is located
+setwd("C:\\Users\\tomma\\OneDrive - Birkbeck, University of London\\PupilDilationSync_2023\\A-Pupil-Dilation-Technique-to-Test-Developmental-Differences-in-Visual-Synchrony")
 
 # Load running average person correlation functions
-source(".\\Scripts\\0_SynchronyFunctions.R")
+source(".\\Analysis\\0_SynchronyFunctions.R")
 
 # Read the input data
 df = read.csv('.\\Data\\ProcessedData\\FinalData.csv', sep = ',')
@@ -54,7 +54,7 @@ MultipleSynhc = function(x) {
   Adults = db %>%
     filter(Group == 'Adults') %>%
     arrange(Stimulus) %>%
-    pivot_wider(names_from = Subject, values_from = Pupil,
+    pivot_wider(names_from = Subject, values_from = Pupil_Residuals,
                 id_cols = c("Seconds", "Stimulus", "Video")) 
   
   ByStimulus = Adults %>% split(.$Stimulus)
@@ -72,7 +72,7 @@ MultipleSynhc = function(x) {
   Children = db %>%
     filter(Group == 'Children') %>%
     arrange(Stimulus) %>%
-    pivot_wider(names_from = Subject, values_from = Pupil,
+    pivot_wider(names_from = Subject, values_from = Pupil_Residuals,
                 id_cols = c("Seconds", "Stimulus", "Video")) 
   
   ByStimulus = Children %>% split(.$Stimulus)

@@ -27,12 +27,12 @@ RollingT = function(df) {
 Hz = 20
 window_size = 4 * Hz  # Set window size based on Hz
 
-# Set working directory
-setwd("C:\\Users\\tomma\\Desktop\\Share")
+# Set the working directory to where your data is located
+setwd("C:\\Users\\tomma\\OneDrive - Birkbeck, University of London\\PupilDilationSync_2023\\A-Pupil-Dilation-Technique-to-Test-Developmental-Differences-in-Visual-Synchrony")
 
 # Read the input data files
-db = vroom::vroom('.\\Data\\ProcessedData\\FinalData.csv')
-Synch_Pupil = vroom::vroom('.\\Data\\ProcessedData\\Pupil_Synch.csv')
+db = readRDS('.\\Data\\ProcessedData\\FinalData.rds')
+Synch_Pupil = readRDS('.\\Data\\ProcessedData\\Pupil_Synch.rds')
 
 
 
@@ -78,4 +78,4 @@ TTEST_Pupil = TTEST_Pupil %>%
       is.na(Pval.fdr) ~ FALSE))
 
 # Write the final results to a CSV file
-write.csv(TTEST_Pupil, '.\\Data\\ProcessedData\\RollingTtest_Pupil.csv', row.names = FALSE)
+saveRDS(TTEST_Pupil, '.\\Data\\ProcessedData\\RollingTtest_Pupil.rds')

@@ -61,3 +61,28 @@ average_fisher_z_transform = function(corr_matrix, threshold = 0.75) {
 }
 
 
+
+
+
+# Function to compute residuals from a linear model 
+# Pupil is regressed on GazeX and GazeY (including their interaction).
+# Returns residuals aligned with the original data, preserving NA for missing rows.
+Residuals_lm <- function(DataPupSelection) {
+
+    # Select only the columns needed for the model
+  P <- DataPupSelection %>%
+    select(Pupil, GazeX, GazeY)
+  
+  # Fit a linear model: Pupil ~ GazeX * GazeY
+  m <- lm(Pupil ~ GazeX * GazeY, data = P)
+  
+  # Extract residuals from the model
+  r <- insight::get_residuals(m)
+  
+  # Create an output vector with NA and assign residuals to complete rows
+  out <- rep(NA, nrow(P))
+  out[stats::complete.cases(P)] <- r
+  
+  # Return residuals with missing data handled
+  return(out)
+}

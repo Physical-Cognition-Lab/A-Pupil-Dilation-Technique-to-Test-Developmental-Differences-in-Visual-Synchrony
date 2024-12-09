@@ -8,14 +8,14 @@ library(zoo)
 Hz = 20
 window_sizeP = Hz * 2  # Window size for calculating rolling correlation
 
-# Set working directory
-setwd("C:\\Users\\tomma\\Desktop\\Share")
+# Set the working directory to where your data is located
+setwd("C:\\Users\\tomma\\OneDrive - Birkbeck, University of London\\PupilDilationSync_2023\\A-Pupil-Dilation-Technique-to-Test-Developmental-Differences-in-Visual-Synchrony")
 
 # Load running average person correlation functions
-source(".\\Scripts\\0_SynchronyFunctions.R")
+source(".\\Analysis\\0_SynchronyFunctions.R")
 
 # Read the input data
-db = vroom::vroom('.\\Data\\ProcessedData\\FinalData.csv')
+db = readRDS('.\\Data\\ProcessedData\\FinalData.rds')
 
 
 
@@ -25,7 +25,7 @@ db = vroom::vroom('.\\Data\\ProcessedData\\FinalData.csv')
 Adults = db %>%
   filter(Group == 'Adults') %>%
   arrange(Stimulus) %>%
-  pivot_wider(names_from = Subject, values_from = Pupil,
+  pivot_wider(names_from = Subject, values_from = Pupil_Residuals,
               id_cols = c("Seconds", "Stimulus", "Video"))
 
 # Split data by Stimulus for separate processing
@@ -47,7 +47,7 @@ Adults = Adults %>%
 Children = db %>%
   filter(Group == 'Children') %>%
   arrange(Stimulus) %>%
-  pivot_wider(names_from = Subject, values_from = Pupil,
+  pivot_wider(names_from = Subject, values_from = Pupil_Residuals,
               id_cols = c("Seconds", "Stimulus", "Video"))
 
 # Split data by Stimulus for separate processing
@@ -68,4 +68,13 @@ Children = Children %>%
 Synch_Pupil = bind_rows(Children, Adults)
 
 # Save the combined results to a CSV file
-write.csv(Synch_Pupil, '.\\Data\\ProcessedData\\Pupil_Synch.csv', row.names = FALSE)
+saveRDS(Synch_Pupil, '.\\Data\\ProcessedData\\Pupil_Synch.rds')
+
+
+
+plotly::ggplotly(
+  ggplot(Synch_Pupil, aes(y = PupilSynch, x =Seconds ,color = Group ))+
+    geom_line(lwd=1)+
+    facet_wrap(~Stimulus, scales = 'free_x')+
+    theme_bw(base_size = 20)
+)

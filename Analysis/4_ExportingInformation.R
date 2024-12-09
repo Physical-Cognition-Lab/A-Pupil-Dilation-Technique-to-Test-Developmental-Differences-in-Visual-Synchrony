@@ -49,7 +49,8 @@ gt_theme_538 = function(data, decimals = 3, ...) {
 # Set Working Directory and Load Data -------------------------------------
 
 # Set the working directory to the location where your data files are stored
-setwd("C:\\Users\\tomma\\Desktop\\Share")
+# Set the working directory to where your data is located
+setwd("C:\\Users\\tomma\\OneDrive - Birkbeck, University of London\\PupilDilationSync_2023\\A-Pupil-Dilation-Technique-to-Test-Developmental-Differences-in-Visual-Synchrony")
 
 # Load the synchronized pupil data and modify the 'Stimulus' column format
 Synch_Pupil = vroom::vroom('.\\Data\\ProcessedData\\Pupil_Synch.csv') %>%
@@ -100,23 +101,24 @@ Synch_Pupil %>%
   geom_rect(
     inherit.aes = FALSE, data = Chunks_Pupil,
     aes(xmin = START, xmax = END, ymin = -Inf, ymax = Inf), 
-    fill = '#F2D76A', color = 'black'
+    fill = '#F2D76A', color = 'black', alpha = 0.5
   ) + 
-  geom_line(linewidth = 1.2) +
+  geom_line(linewidth = 1) +
   facet_wrap(~Stimulus, ncol = 3, scales = 'free_x') +
   theme_minimal(base_size = 25) +
   scale_color_manual(values = c("#BD3538", "#455BA6")) +
   labs(x = 'Time (s)', y = 'Pupil Synchrony')
-ggsave('.\\Results\\PupilSynchronyChunks.svg', height = 12, width = 20, dpi = 300)
+ggsave('.\\Results\\PupilSynchronyChunks.svg', height = 12, width = 26, dpi = 300)
 
 
 ## Plot the density distribution of chunk durations
 ggplot(Chunks_Pupil, aes(x = DUR)) +
   geom_histogram(aes(y = ..ncount..), fill = '#F2D76A', color = 'black', alpha = 0.7, binwidth = 0.25) +
   geom_density(aes(y = ..ndensity..), lwd = 1.3, color = 'black', fill = '#F2D76A', alpha = 0.5) +
-  theme_classic(base_size = 24) +
+  theme_classic(base_size = 40) +
   labs(x = 'Duration (s)', y = 'Density') +
-  scale_x_continuous(breaks = seq(0, max(Chunks_Pupil$DUR), by = 5))
+  scale_x_continuous(breaks = seq(0, max(Chunks_Pupil$DUR), by = 5))+
+  theme(axis.line = element_blank() )
 ggsave('.\\Results\\DistributionChunkLength.svg', height = 12, width = 18, dpi = 300)
 
 
@@ -251,14 +253,25 @@ Chunks_Pupil %>%
 
 # Prepare data for Wilcoxon test comparing chunk duration between non-random and bootstrapped data
 Dur_NonRandom = Chunks_Pupil %>%
+  ungroup() %>%
   mutate(Type = 'Non Random') %>%
   select(DUR, Type, Stimulus)
 
+Dur_NonRandom |> 
+  summarise(M = mean(DUR),
+         SD = sd(DUR))
+
 Dur_Random = Chunks_Pupil_boot %>%
+  ungroup() %>%
   group_by(Streak, Stimulus) %>%
   summarize(DUR = mean(DUR)) %>%
   mutate(Type = 'Random') %>%
-  select(DUR, Type, Stimulus)
+  select(DUR, Type, Stimulus) %>%
+  ungroup()
+
+Dur_Random |> 
+  summarise(M = mean(DUR),
+         SD = sd(DUR))
 
 # Perform Wilcoxon test
 Wilcx = wilcox.test(Dur_Random$DUR, Dur_NonRandom$DUR)
@@ -305,8 +318,10 @@ ggplot(RandomAbove2, aes(x = Number_Of_Chunks_Above_2s)) +
   geom_hline(yintercept = 0, linewidth = 1.2) +
   geom_point(x = NonR2sch$N, y = 0.8, shape = 21, size = 8, color = 'black', fill = '#E0C763') +
   geom_text(x = 120, y = .9, size = 8, label = '# of time windows found in\nthe non-randomized data') +
-  theme_classic(base_size = 25) +
+  theme_classic(base_size = 40) +
   labs(x = 'Number of Significant Time Windows', y = 'Density',
        title = 'Density of the Number of Chunks Above 2s in the Randomized Data') +
-  scale_x_continuous(breaks = seq(0, NonR2sch$N, by = 20))
+  scale_x_continuous(breaks = seq(0, NonR2sch$N, by = 20))+
+  theme(axis.line = element_blank() )
 
+ggsave('.\\Results\\DistributionChunkLength_boot.svg', height = 12, width = 18, dpi = 300)

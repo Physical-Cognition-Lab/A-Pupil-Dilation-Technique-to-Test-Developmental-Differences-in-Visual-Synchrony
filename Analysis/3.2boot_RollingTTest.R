@@ -25,7 +25,9 @@ RollingT = function(df) {
 Hz = 20
 window_size = 4*Hz
 
-setwd("C:\\Users\\tomma\\Desktop\\Share")
+# Set working directory
+# Set the working directory to where your data is located
+setwd("C:\\Users\\tomma\\OneDrive - Birkbeck, University of London\\PupilDilationSync_2023\\A-Pupil-Dilation-Technique-to-Test-Developmental-Differences-in-Visual-Synchrony")
 
 # Read data
 Synch_Pupil = readRDS('.\\Data\\ProcessedData\\Bootstrap\\PupilSynch_Boot.rds')

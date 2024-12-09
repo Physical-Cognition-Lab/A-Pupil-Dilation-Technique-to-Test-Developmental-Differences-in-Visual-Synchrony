@@ -12,11 +12,11 @@ library(patchwork)
 Hz = 20
 window_sizeP = Hz * 2  # Window size for calculating the rolling correlation
 
-# Set working directory
-setwd("C:\\Users\\tomma\\Desktop\\Share")
+# Set the working directory to where your data is located
+setwd("C:\\Users\\tomma\\OneDrive - Birkbeck, University of London\\PupilDilationSync_2023\\A-Pupil-Dilation-Technique-to-Test-Developmental-Differences-in-Visual-Synchrony")
 
 # Load running average person correlation functions
-source(".\\Scripts\\0_SynchronyFunctions.R")
+source(".\\Analysis\\0_SynchronyFunctions.R")
 
 # Read the input data
 db = vroom::vroom('.\\Data\\ProcessedData\\FinalData.csv')
@@ -49,7 +49,7 @@ MultipleSynhc = function(x) {
   Adults = db %>%
     filter(Group == 'Adults') %>%
     arrange(Stimulus) %>%
-    pivot_wider(names_from = Subject, values_from = Pupil, 
+    pivot_wider(names_from = Subject, values_from = Pupil_Residuals, 
                 id_cols = c("Seconds", "Stimulus", "Video")) 
   
   ByStimulus = Adults %>%
@@ -73,7 +73,7 @@ MultipleSynhc = function(x) {
     # Randomly sample 9 children to even the sample
     filter(Subject %in% sample(unique(Children$Subject), 9, replace = FALSE)) %>% # Sample 9 subjects
     arrange(Stimulus) %>%
-    pivot_wider(names_from = Subject, values_from = Pupil, 
+    pivot_wider(names_from = Subject, values_from = Pupil_Residuals, 
                 id_cols = c("Seconds", "Stimulus", "Video"))
   
   ByStimulus = Children %>%
@@ -150,10 +150,10 @@ ggplot(Density, aes(x = x, y = y)) +
   geom_line(color = '#7f8dc4') +
   geom_ribbon(aes(ymin = 0, ymax = y), fill = '#7f8dc4', alpha = 9) +
   geom_point(x = MaxP, y = max(Density$y), size = 4, color = 'black', fill = '#5C6EB4', pch = 21) +
-  annotate("text", x = MaxP * 1.5, y = max(Density$y), label = as.character(round(MaxP, 4)), color = 'black', size = 9) +
+  annotate("text", x = MaxP * 6, y = max(Density$y)+1.3, label = as.character(round(MaxP, 4)), color = 'black', size = 9) +
   geom_segment(x = 0.05, xend = 0.05, y = 0, yend = 10, linetype = 'dashed', color = 'darkred', lwd = 1.4) +
   geom_point(x = 0.05, y = 10, color = 'darkred', size = 4) +
-  annotate("text", x = 0.05, y = 10.5, label = '0.05', color = 'black', size = 9) +
+  annotate("text", x = 0.05, y = 11, label = '0.05', color = 'black', size = 9) +
   theme_minimal(base_size = 40) +
   labs(x = 'P-value', y = 'Density')
 

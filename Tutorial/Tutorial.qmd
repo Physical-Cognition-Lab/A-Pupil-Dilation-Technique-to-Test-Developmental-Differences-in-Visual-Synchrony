@@ -39,10 +39,12 @@ execute:
 
 # Introduction
 
-This tutorial demonstrates how to extract population pupil dilation synchrony using a simulated dataset. The analysis focuses on comparing pupil dilation patterns between two age groups across multiple video stimuli.
+This tutorial demonstrates how to extract population pupil dilation synchrony using a simulated dataset. The analysis focuses on comparing pupil dilation patterns between two age groups across multiple video stimuli. This
 
 ::: callout-warning
-The pupil dilation data used in this tutorial is simulated. Please do not interpret the results as representative of actual physiological responses.
+The pupil dilation data in this tutorial is generated using simulated sinusoidal curves and is not indicative of real physiological responses. Please treat the results as illustrative only.
+
+This tutorial assumes you have a pre-processed, clean pupil dilation signal ready for analysis.
 :::
 
 The simulated dataset comprises:
